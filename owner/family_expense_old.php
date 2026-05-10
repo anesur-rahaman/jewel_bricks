@@ -1,0 +1,16 @@
+<?php include('header.php'); ?><?php require_once "db.php"; ?><?php session_start();if(!isset($_SESSION['id'])){	echo '<script>windows: location="index.php"</script>';	}?><?php	$expense_by =$_REQUEST['expense_by'];	date_default_timezone_set('Asia/Kolkata');	$time_now=mktime(date('h'),date('i'),date('s'));	$current_date = date('Y-m-d',$time_now);	$current_time = date('h:i:s',$time_now);	$date=$current_date." ".$current_time ;?><!DOCTYPE html><html><head><title>Family Expense</title></head><body><body class="main"><div class="a"><div class="container-fluid"><div id="message"></div><div class="row justfied-content-center">	<div class="col-md-12 bg-light mt-2 rounded pb-3">	<!--<h1 class=="text-primary p-2">Live Search</h1>-->	<div class="form-inline" align="center">	<label for="distributor_search" class="font-weight-bold lead text-dark">Expense as of <?php echo date('d-M-Y H:i:s', strtotime($date));?></label>&nbsp;&nbsp;&nbsp;&nbsp;<div align="center"><td align ="right"><a rel="facebox" href="family_expense_add.php" class="btn btn-info">Add New Family Expense</a></td></div><table class="table table-hover table-light table-striped" id="table-data">    <thead>    <tr>	<th>Id</th>	<th>Trx Date</th>	<th>Expense</th>    <th>Amount (₹)</th>	</tr>    </thead>
+<?php$perpage = 500;if(isset($_GET["page"])){$page = intval($_GET["page"]);}else {$page = 1;}
+$calc = $perpage * $page;$start = $calc - $perpage;$result = mysqli_query($conn, "SELECT * FROM family_expense WHERE expense_by='$expense_by' ORDER BY id DESC Limit $start, $perpage");
+//$result = mysqli_query($conn, "select * from bill Limit $start, $perpage");
+$rows = mysqli_num_rows($result);if($rows){$i = 0;while($row = mysqli_fetch_assoc($result)) {
+?>
+<?php
+  echo "<tr>";
+  echo "<td>" . $row['id'] . "</td>";  echo "<td>" .date('d-M-y', strtotime( $row['trx_date'] )) . "</td>";
+  echo "<td>" . $row['expense'] . "</td>";  echo "<td>₹ " . number_format(round($row['amount'], 2)) ."</td>";  echo "</tr>";}}?>
+</table>
+<table width="1200" cellspacing="2" cellpadding="2" align="center"><tr><td align="center">
+<?php
+	if(isset($page))	{	$result = mysqli_query($conn,"select Count(*) As Total from family_expense");	$rows = mysqli_num_rows($result);	if($rows)	{	$rs = mysqli_fetch_assoc($result);	$total = $rs["Total"];	}	$totalPages = ceil($total / $perpage);	if($page <=1 ){	echo "<span><button><id='page_links' style='font-weight: bold;'>Prev</button>&nbsp;</span>";	}	else	{	$j = $page - 1;	echo "<span>&nbsp;<button><a id='page_a_link' href='expense.php?page=$j&id=$id'>< Prev</a>&nbsp;</button></span>";	}	for($i=1; $i <= $totalPages; $i++)	{	if($i<>$page)	{	echo "<span>&nbsp;<button><a id='page_a_link' href='expense.php?page=$i'>$i</a>&nbsp;</button></span>";	}	else	{	echo "<span>&nbsp;<button><id='page_links' style='font-weight: bold;'>$i</button>&nbsp;</span>";	}	}	if($page == $totalPages )	{	echo "<span>&nbsp;<button><id='page_links' style='font-weight: bold;'>Next</button></span>";	}	else	{	$j = $page + 1;	echo "<span>&nbsp;<button><a id='page_a_link' href='expense.php?page=$j'>Next</a></button></span>";	}	}
+?></td>
+<td></td></tr></table></div></body></html>
